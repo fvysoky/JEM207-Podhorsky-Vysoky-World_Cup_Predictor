@@ -10,7 +10,7 @@ The analysis combines three primary data sources:
 
 - **Match results**: Historical football matches from 1930 to 2025, including World Cups, continental championships, and competitive qualifiers (friendlies excluded)
   - Source: Kaggle/Football dataset
-  - Fields: date, home/away teams, scores, tournament type, venue
+  - Fields: date, home/away teams, scores, tournament type, venue, neutral flag
 
 - **FIFA World Rankings**: Monthly rankings for each country (2022-2026)
   - Scraped from official FIFA website
@@ -28,11 +28,12 @@ The analysis combines three primary data sources:
 - Keeping only teams with complete FIFA ranking data
 
 ### Feature Engineering
-For each match, we calculate four difference-based features:
+For each match, we calculate five difference-based features:
 
 | Feature | Calculation | Interpretation |
 |---------|-------------|----------------|
-| **Rank difference** | Home rank - Away rank | Negative = home team better ranked |
+| **Home advantage** | 1 = home match, 0 = neutral venue | Home teams have documented advantage in football |
+| **Rank difference** | Home rank - Away rank | Negative = home team better ranked (lower rank number = stronger) |
 | **Age difference** | Home avg age - Away avg age | Positive = home team has older squad |
 | **Value difference** | Home market value - Away market value | Positive = home squad more valuable |
 | **Form difference** | Home form points - Away form points | Positive = home team in better recent form |

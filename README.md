@@ -17,7 +17,7 @@ Clone this repository onto your computer using the following command:
 git clone https://github.com/fvysoky/JEM207-Podhorsky-Vysoky-World_Cup_Predictor.git
 ```
 ```text
-cd JEM207-Podhorsky-Vysoky-World_Cup_Predictor/world cup predictor
+cd JEM207-Podhorsky-Vysoky-World_Cup_Predictor/world_cup_predictor
 ```
 Open a terminal instance in the directory where the repository is cloned and run the following commands to install the necessary libraries:
 ```text

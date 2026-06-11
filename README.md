@@ -1,53 +1,42 @@
-# PROJECT: World Cup Outcome Predictor
+# 2026 FIFA World Cup Predictive Model & Simulator
 
-A machine learning project using historical football match data, FIFA rankings, and squad valuations to predict World Cup match outcomes.
+An end-to-end machine learning pipeline and deterministic tournament simulator for the 2026 FIFA World Cup. This project scrapes financial and ranking data, merges it with historical match results, trains a calibrated predictive model on international match outcomes (1X2 market), and simulates the expanded 48-team tournament bracket.
 
-## Motivation
-Predicting football match outcomes is a classic challenge in sports analytics. While many factors influence a match result (form, quality, home advantage, squad composition), this project aims to identify which variables have the strongest predictive power. By building a logistic regression model, we can quantify the impact of different team characteristics and potentially predict future World Cup results.
+## Project Architecture
 
-## Data Sources
-The analysis combines three primary data sources:
+The repository is structured into three distinct phases: Data Engineering, Predictive Modeling, and Tournament Simulation.
 
-- **Match results**: Historical football matches from 1930 to 2025, including World Cups, continental championships, and competitive qualifiers (friendlies excluded)
-  - Source: Kaggle/Football dataset
-  - Fields: date, home/away teams, scores, tournament type, venue, neutral flag
+### 1. Data Engineering & Scraping
+The foundation of the model relies on merging point-in-time financial and ranking metrics with historical match results. 
+* **Raw Match Data:** The base match history (`results.csv`) is sourced from Kaggle, containing official international football matches from the 1930s to the present. **Note:** To maintain relevance to modern tactical eras and current squad compositions, the operational training window is strictly filtered to matches from **2022 onward** (last 2022 FIFA World Cup).
+* **FIFA Ranking Scrapers (`FIFA_202x_v5.ipynb`):** Automated web scrapers utilizing Playwright and BeautifulSoup to extract official FIFA Men's World Rankings from 2022 to the present.
+* **Transfermarkt Scraper (`Transfermarkt_scraper_v6.ipynb`):** Extracts national team squad market values (in Euros) and average squad ages.
+* **Dataset Builder (`df_fin_v1.ipynb`):** Merges the disparate data sources. Standardizes country naming conventions across platforms, removes non-standard friendly matches, and calculates rolling 5-match team form. 
 
-- **FIFA World Rankings**: Monthly rankings for each country (2022-2026)
-  - Scraped from official FIFA website
-  - Ensures ranking data is relevant to match date
+### 2. Predictive Modeling (`wc_predictor_v3_classes.py`)
+The model evaluates the classic 1X2 betting market (Home Win, Draw, Away Win) using an eXtreme Gradient Boosting classifier.
 
-- **Squad data**: Average age and market value for national teams
-  - Scraped from Transfermarkt
-  - Current squads used as proxy (limitation: historical squad data unavailable)
+**Methodology:**
+* **Feature Engineering:** Uses differential features (`rank_difference`, `value_difference`, `form_difference`, `age_difference`) and a binary `home_advantage` flag (resolving neutral venue bias). 
+* **Algorithm:** `XGBClassifier` constrained by `max_depth=4` and `learning_rate=0.05` to prevent overfitting on historical noise. 
+* **Validation:** Implements a strict **chronological 80/20 train/test split**. Random splitting is explicitly avoided to prevent temporal data leakage (predicting past matches using future knowledge).
+* **Probability Calibration:** Tree-based models inherently distort minority class distributions (e.g., Draws). The base XGBoost model is wrapped in scikit-learn’s `CalibratedClassifierCV` using Sigmoid (Platt) scaling. This forces the softmax outputs to mirror real-world historical frequencies, ensuring the probabilities are mathematically viable for Expected Value (+EV) calculations in the Bet Builder UI.
 
-## Dataset Preparation
+### 3. Tournament Simulation
+The simulation engine translates the calibrated probabilities into a progressing 48-team bracket based on the official 2026 format.
 
-### Filtering
-- Only matches from 2022 onwards (post last World Cup)
-- Excluding friendly matches (low competitive intensity)
-- Keeping only teams with complete FIFA ranking data
+* **Group Stage:** 12 groups of 4 teams. Match outcomes are predicted deterministically. 
+* **Tiebreaker Logic:** The simulator utilizes a tiered tiebreaker: Points ➔ Two-way Head-to-Head ➔ FIFA Rank fallback. (See *Scope Constraints* below regarding Goal Difference).
+* **Third-Place Advancement:** Safely aggregates the standings across all groups and assigns the 8 best third-place teams to their official FIFA downstream match slots.
+* **Knockout Stage:** Forces binary progression. If the model's highest probability for a knockout match is a Draw at 90 minutes, the simulator forces advancement based on the team with the higher baseline win probability (`prob_home_win` vs `prob_away_win`).
 
-### Feature Engineering
-For each match, we calculate five difference-based features:
+## Scope Constraints & Future Work
+* **Target Variable Isolation (No Goal Vectors):** This project intentionally bounds its scope to evaluating the classic 1X2 probability market. Because the model predicts discrete outcomes rather than exact goal vectors, traditional Goal Difference is unavailable for group stage tiebreakers. Reintroducing Goal Difference would require a secondary Poisson distribution model for Expected Goals (xG), which introduces complex variance outside the scope of evaluating the primary XGBoost classification engine. 
+* **Static Features:** Currently, `form_difference` and `value_difference` remain static as simulated teams advance deep into the tournament. Future iterations must dynamically update team form post-group stage.
 
-| Feature | Calculation | Interpretation |
-|---------|-------------|----------------|
-| **Home advantage** | 1 = home match, 0 = neutral venue | Home teams have documented advantage in football |
-| **Rank difference** | Home rank - Away rank | Negative = home team better ranked (lower rank number = stronger) |
-| **Age difference** | Home avg age - Away avg age | Positive = home team has older squad |
-| **Value difference** | Home market value - Away market value | Positive = home squad more valuable |
-| **Form difference** | Home form points - Away form points | Positive = home team in better recent form |
+## Setup & Execution
 
-**Form calculation**: Rolling sum of points from last 5 competitive matches (3 for win, 1 for draw, 0 for loss)
-
-**Target variable**: 
-- 1 = Home win
-- 0 = Draw  
-- 2 = Away win
-
-## How to Run
-
-Clone this repository:
+**Requirements:**
 ```bash
-git clone https://github.com/modrazz/world-cup-predictor
-cd world-cup-predictor
+pip install pandas numpy scikit-learn xgboost playwright beautifulsoup4
+playwright install chromium

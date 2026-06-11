@@ -16,6 +16,7 @@ Clone this repository onto your computer using the following command:
 ```text
 git clone https://github.com/fvysoky/JEM207-Podhorsky-Vysoky-World_Cup_Predictor.git
 ```
+Change your directory using this command in your terminal:
 ```text
 cd JEM207-Podhorsky-Vysoky-World_Cup_Predictor/world_cup_predictor
 ```
@@ -24,7 +25,7 @@ Open a terminal instance in the directory where the repository is cloned and run
 pip install -r requirements.txt
 playwright install chromium
 ```
-To run the data pipeline and train the model, open your Jupyter Notebook client and execute the files in this order:
+To run the data pipeline and train the model, open your Jupyter Notebook client and execute the files in this order (or you can use already saved dataset `df_fin_v1.csv`, which is run automatically by the application and predictors):
 1. **Scrapers:** Run `FIFA_202x.ipynb` and `Transfermarkt.ipynb` to gather the latest metrics.
 2. **Data Builder:** Run `df_fin_v1.ipynb` to clean, merge, and output the final feature matrix.
 3. **Model & Simulation:** Run `model_workflow_final.ipynb` and click 'Run All' to train the XGBoost model, evaluate the chronological holdout, and simulate the 2026 World Cup. 

@@ -67,15 +67,14 @@ For the knockout stages, we routed the Top 2 teams and the 8 best 3rd-place team
 ### 2. Best Teams (Simulation Results)
 When running the 2026 Group Stage simulation, the model cleanly identified the heavy tier-one favorites. 
 - **Flawless Group Stages (9 Points):** Mexico, Canada, Brazil, USA, Netherlands, Belgium, Spain, France, Argentina, and England.
-- **Tightest Groups:** Group E (Germany and Ecuador tied on 6 points, resolved by tiebreaker) and Group K (Portugal and Colombia tied on 7 points, resolved by tiebreaker).
+- **Tightest Groups:** Group K (Portugal and Colombia tied on 7 points, resolved by tiebreaker).
 
 ### 3. Knockout Simulation and Predicted Champion
 When evaluating the bracket pathway from the Round of 32 down to the final:
 - The simulation behaves highly deterministically, heavily rewarding elite squad market values and punishing vast rank differentials. 
-- **The Final:** The simulation dynamically generated a benchmark Final between **France and Brazil**. 
-- **The Champion:** Driven by superior differential features, the model predicts **France** to win the 2026 FIFA World Cup, with **Spain** securing the 3rd-place play-off spot.
+- **The Final:** The simulation dynamically generated a benchmark Final between **Spain and Portugal**. 
+- **The Champion:** Driven by superior differential features, the model predicts **Spain** to win the 2026 FIFA World Cup, with **Brazil** securing the 3rd-place play-off spot.
 
-When removing the artificial "draw hallucinations" found in uncalibrated models, the simulation behaves highly deterministically, heavily rewarding elite squad market values and punishing vast rank differentials. 
 
 ## Authors
 This project was created as part of a university course Data Processing in Python JEM207.
